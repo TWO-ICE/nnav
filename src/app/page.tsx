@@ -9,7 +9,7 @@ import { Background } from "@/components/Background";
 import { GroupedNotionMenu } from "@/components/GroupedNotionMenu";
 import { FavoritesMenu } from "@/components/FavoritesMenu";
 // 导入常量配置
-import { MAX_BG_COUNT, PASSWORDS } from "@/config/constants";
+import { MAX_BG_COUNT } from "@/config/constants";
 // 导入类型定义
 import { BingImage, NavMenuItem } from "@/types";
 // 导入工具函数
@@ -25,7 +25,6 @@ import { LanToggle } from "@/components/LanToggle";
 import { WallpaperInfo } from "@/components/WallpaperInfo";
 import { Lock } from "@/components/Lock";
 import { useSearchParams } from "next/navigation";
-import { Weather } from "@/components/Weather";
 
 // 创建一个包装组件来使用 useSearchParams
 function HomeContent() {
@@ -62,7 +61,21 @@ function HomeContent() {
   const [wallpaperInfo, setWallpaperInfo] = useState<BingImage>();
 
   // 添加锁屏状态
-  const [isLocked, setIsLocked] = useState(true);
+  const [isLocked, setIsLocked] = useState(() => {
+    // 如果URL中有role参数，初始状态为验证中而不是锁定
+    const role = searchParams.get("role");
+    return !role; // 有role参数时初始不锁定，没有role参数时初始锁定
+  });
+
+  // 添加URL角色验证状态
+  const [isValidatingUrlRole, setIsValidatingUrlRole] = useState(() => {
+    // 如果URL中有role参数，初始状态为验证中
+    const role = searchParams.get("role");
+    return !!role; // 有role参数时初始为验证中
+  });
+
+  // 添加角色检查状态
+  const [isCheckingRoles, setIsCheckingRoles] = useState(true);
 
   // 使用自定义Hook管理收藏状态
   const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
@@ -107,21 +120,85 @@ function HomeContent() {
     storage.set("bg", String(getNewRandomIndex(Number(storage.get("bg")))));
   }, []);
 
-  // 组件挂载时检查 URL 参数
+  // 监听URL参数变化，重置验证状态
   useEffect(() => {
     const role = searchParams.get("role");
+    console.log("URL参数变化:", role);
+
     if (role) {
-      // 优先使用 Notion 数据库中的角色进行验证
-      const validRoles = [...notionRoles, ...PASSWORDS]; // 合并 Notion 角色和备用密码
+      // 有role参数时，设置为验证中状态
+      setIsValidatingUrlRole(true);
+      setIsLocked(false);
+    } else {
+      // 没有role参数时，检查是否有角色限制
+      if (!_rolesLoading && notionRoles.length === 0) {
+        // 没有角色限制，直接解锁
+        console.log("没有角色限制，直接解锁");
+        setIsValidatingUrlRole(false);
+        setIsLocked(false);
+        setIsCheckingRoles(false);
+      } else if (!_rolesLoading && notionRoles.length > 0) {
+        // 有角色限制，设置为锁定状态
+        console.log("有角色限制，显示锁定组件");
+        setIsValidatingUrlRole(false);
+        setIsLocked(true);
+        setIsCheckingRoles(false);
+      }
+      // 如果还在加载中，保持检查状态
+    }
+  }, [searchParams, _rolesLoading, notionRoles]);
+
+  // URL角色验证逻辑
+  useEffect(() => {
+    const role = searchParams.get("role");
+    console.log("URL角色验证检查:", {
+      role,
+      _rolesLoading,
+      notionRoles,
+      validRoles: [...notionRoles],
+      isValidatingUrlRole,
+      isLocked,
+    });
+
+    // 如果有role参数且roles已加载完毕，开始验证
+    if (role && !_rolesLoading) {
+      console.log("开始验证URL角色:", role);
+      setIsValidatingUrlRole(true);
+
+      // 使用setTimeout来模拟验证过程，让加载状态持续显示
+      // setTimeout(() => {
+      const validRoles = [...notionRoles];
       if (validRoles.includes(role)) {
-        console.log("URL role parameter validated:", role);
+        console.log("URL角色验证成功:", role);
         handleUnlock(role);
+        setIsValidatingUrlRole(false);
       } else {
-        console.log("Invalid URL role parameter:", role);
-        console.log("Available roles:", validRoles);
+        console.log("URL角色验证失败:", role, "可用角色:", validRoles);
+        setIsValidatingUrlRole(false); // 验证失败，显示锁定页面
+        setIsLocked(true); // 验证失败时重新锁定
+      }
+      // }, 1000); // 延迟1秒，让用户看到加载状态
+    }
+  }, [searchParams, notionRoles, _rolesLoading]);
+
+  // 检查是否需要显示锁定组件
+  useEffect(() => {
+    // 如果roles已加载完毕且没有任何角色限制，直接解锁
+    if (!_rolesLoading && notionRoles.length === 0) {
+      console.log("没有角色限制，直接解锁");
+      setIsLocked(false);
+      setIsValidatingUrlRole(false);
+      setIsCheckingRoles(false);
+    } else if (!_rolesLoading && notionRoles.length > 0) {
+      // 有角色限制，检查是否需要锁定
+      const role = searchParams.get("role");
+      if (!role) {
+        console.log("有角色限制且没有URL参数，显示锁定组件");
+        setIsLocked(true);
+        setIsCheckingRoles(false);
       }
     }
-  }, [searchParams, notionRoles]); // 添加 notionRoles 作为依赖
+  }, [_rolesLoading, notionRoles, searchParams]);
 
   /**
    * 处理语言切换
@@ -261,11 +338,36 @@ function HomeContent() {
       <Background
         isApple={isApple}
         isLan={isLan}
+        notionCover={databaseMetadata.cover}
         onWallpaperInfo={setWallpaperInfo}
       />
 
-      {/* 锁屏组件 */}
-      {isLocked && <Lock onUnlock={handleUnlock} />}
+      {/* 角色检查加载状态 */}
+      {isCheckingRoles && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 backdrop-blur-sm bg-black/10" />
+          <div className="relative z-10 p-8 rounded-2xl text-center">
+            <div className="animate-spin w-8 h-8 border-2 border-white/30 border-t-white rounded-full mx-auto mb-4"></div>
+            <p className="text-white/70 text-sm">加载中...</p>
+          </div>
+        </div>
+      )}
+
+      {/* URL角色验证加载状态 */}
+      {isValidatingUrlRole && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 backdrop-blur-sm bg-black/10" />
+          <div className="relative z-10 p-8 rounded-2xl text-center">
+            <div className="animate-spin w-8 h-8 border-2 border-white/30 border-t-white rounded-full mx-auto mb-4"></div>
+            <p className="text-white/70 text-sm">正在验证角色权限...</p>
+          </div>
+        </div>
+      )}
+
+      {/* 锁屏组件 - 只在未验证URL角色且锁定时显示 */}
+      {!isCheckingRoles && !isValidatingUrlRole && isLocked && (
+        <Lock onUnlock={handleUnlock} />
+      )}
 
       {/* 主要内容区域 */}
       <div
@@ -297,23 +399,6 @@ function HomeContent() {
 
             {/* 显示锁屏状态 */}
           </header>
-
-          {userRole === "qazz" && (
-            <div className="mb-6 mt-3">
-              <h2 className="font-semibold text-slate-800 text-base mb-4 text-white">
-                <span className="text mr-2">🧩</span>小组件
-              </h2>
-              <div className="grid md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-4">
-                <div
-                  className="relative nav-item rounded-2xl"
-                  style={{ animationDelay: `${0 * 0.1}s` }}
-                >
-                  {/* 天气信息 */}
-                  <Weather />
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Notion菜单 */}
           {!notionLoading && !notionError && notionMenuItems.length > 0 && (

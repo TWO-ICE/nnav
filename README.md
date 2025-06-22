@@ -271,6 +271,7 @@ category: "开发工具"
 - 同时支持备用密码（qazz, guest）
 - 验证成功后自动解锁页面并设置用户角色
 - 支持实时角色更新，无需重启应用
+- **智能加载状态**：当 URL 包含 role 参数时，先显示"正在验证角色权限..."的加载状态，验证失败才显示锁定页面
 
 **使用示例：**
 
@@ -280,12 +281,15 @@ https://your-domain.vercel.app/?role=qazz
 https://your-domain.vercel.app/?role=guest
 ```
 
-**验证逻辑：**
+**验证流程：**
 
-1. 优先使用 Notion 数据库中的 Roles 字段值进行验证
-2. 如果 Notion 角色验证失败，使用备用密码验证
-3. 验证成功后自动解锁页面并设置用户角色
-4. 支持多角色配置（用逗号分隔）
+1. 检测 URL 中的 role 参数
+2. 显示"正在验证角色权限..."加载状态
+3. 优先使用 Notion 数据库中的 Roles 字段值进行验证
+4. 如果 Notion 角色验证失败，使用备用密码验证
+5. 验证成功后自动解锁页面并设置用户角色
+6. 验证失败则显示锁定页面
+7. 支持多角色配置（用逗号分隔）
 
 ### 7. 收藏功能
 
@@ -305,10 +309,7 @@ nnav/
 │   │   ├── api/
 │   │   │   ├── menu/          # 菜单 API
 │   │   │   │   └── index.ts   # 菜单 API 入口
-│   │   │   ├── auth/          # 登录验证 API
-│   │   │   └── test-notion/   # 测试 API
-│   │   ├── test-search/       # 搜索测试页面
-│   │   ├── test-auth/         # 登录测试页面
+│   │   │   └── auth/          # 登录验证 API
 │   │   └── page.tsx           # 主页面
 │   ├── components/
 │   │   ├── NotionMenu.tsx     # Notion 菜单组件
@@ -325,46 +326,6 @@ nnav/
 ├── public/                    # 静态资源
 └── docs/                      # 文档
 ```
-
-## 🧪 测试功能
-
-### 菜单功能测试
-
-访问 `/test-search` 页面可以测试搜索功能：
-
-- 切换用户角色测试权限控制
-- 切换内网模式测试链接切换
-- 输入关键词测试搜索建议
-- 查看所有菜单项数据
-
-### 登录验证测试
-
-访问 `/test-auth` 页面可以测试登录功能：
-
-- 使用 Notion 页面中的 Roles 值作为密码
-- 验证登录成功后的角色显示
-- 测试不同角色的权限控制
-- 重新锁定功能测试
-
-### 角色验证测试
-
-访问 `/test-roles` 页面可以测试角色验证功能：
-
-- 查看从 Notion 数据库中获取的所有角色
-- 显示备用密码列表
-- 查看所有有效角色的合并列表
-- 提供 URL 参数测试示例
-- 实时刷新角色数据
-
-### 收藏功能测试
-
-访问 `/test-favorites` 页面可以测试收藏功能：
-
-- 查看收藏统计信息
-- 测试添加/移除收藏
-- 验证权限控制
-- 测试清空收藏功能
-- 查看收藏列表和菜单列表
 
 ### API 测试
 
@@ -431,11 +392,6 @@ curl http://localhost:3000/api/env-check
 - 访问 `/api/auth` 测试登录验证（POST 请求）
 - 访问 `/api/auth/roles` 查看所有可用角色
 - 访问 `/api/env-check` 检查环境变量配置
-- 访问 `/test-notion` 查看页面连接状态
-- 访问 `/test-auth` 测试登录功能
-- 访问 `/test-roles` 测试角色验证功能
-- 访问 `/test-favorites` 测试收藏功能
-- 访问 `/test-status` 查看菜单项状态信息
 - 查看浏览器控制台获取详细错误信息
 
 ### 部署检查清单
@@ -481,18 +437,4 @@ curl http://localhost:3000/api/env-check
 
 ### 权限控制策略
 
-- **guest**: 访客权限，只能访问公开菜单项
-- **qazz**: 管理员权限，可以访问所有菜单项
 - **自定义角色**: 可以设置特定的访问权限
-
-### 多页面/多数据库支持
-
-```typescript
-export const NOTION_CONFIG = {
-  DATABASES: {
-    MENU: "menu-database-id",
-    NEWS: "news-database-id",
-    TOOLS: "tools-database-id",
-  },
-};
-```
