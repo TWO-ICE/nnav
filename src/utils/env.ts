@@ -11,13 +11,18 @@ export function getNotionPageId(): string {
   const envPageId = process.env.NOTION_PAGE_ID;
 
   if (envPageId) {
-    console.log("Using NOTION_PAGE_ID from environment variable:", envPageId);
     return envPageId;
   }
 
   const defaultPageId = "219692535678800fbefffd8ae6924454";
-  console.log("Using default NOTION_PAGE_ID:", defaultPageId);
   return defaultPageId;
+}
+
+/**
+ * 获取 Notion Token（可选）
+ */
+export function getNotionToken(): string | undefined {
+  return process.env.NOTION_TOKEN;
 }
 
 /**

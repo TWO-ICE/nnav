@@ -1,8 +1,6 @@
-# NNav - 基于 Notion 的智能导航系统
+# NNav - 基于 Notion 数据库的导航页
 
 一个基于 Next.js 和 Notion 数据库的现代化导航页面，支持动态菜单管理、权限控制、搜索功能和登录验证。
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/nnav&env=NOTION_PAGE_ID&envDescription=Notion%20Page%20ID&envLink=https://github.com/yourusername/nnav%23environment-configuration)
 
 ## ✨ 功能特性
 
@@ -14,28 +12,38 @@
 - 🔑 **登录验证** - 基于 Notion Roles 字段的登录验证
 - 🔗 **URL 角色验证** - 支持通过 URL 参数 `?role=xxx` 直接验证角色
 - ⭐ **收藏功能** - 支持收藏常用菜单项，独立显示
+- 🖼️ **背景图同步** - Notion 数据库封面自动同步为导航页背景图
 - 📱 **响应式设计** - 完美适配各种设备
 - ⚡ **实时更新** - 无需重启应用即可更新菜单
+- 🎨 **现代化 UI**：毛玻璃效果和流畅动画
+- 🌅 **动态背景**：支持 Notion 封面、Bing 每日图片和本地图片
+- 🔄 **状态过滤**：根据 Notion 中的 Status 字段过滤菜单项
+- 📂 **分类分组**：按 Category 字段自动分组显示
+- 🖼️ **智能图标**：Avatar 加载失败时自动使用 favicon.im 服务获取网站图标
+- 🧪 **测试页面**：提供完整的测试页面验证各项功能
 
 ## 🚀 快速开始
 
 ### 方式一：一键部署到 Vercel（推荐）
 
-1. **点击部署按钮**
+1. **获取 Notion 页面 ID**
 
-   点击上方的 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/nnav&env=NOTION_PAGE_ID&envDescription=Notion%20Page%20ID&envLink=https://github.com/yourusername/nnav%23environment-configuration) 按钮
+   - 📋 **[NNav 导航菜单模板](https://like-emmental-3d4.notion.site/219692535678800fbefffd8ae6924454?v=2196925356788073920e000c2a02bf98)**
 
-2. **配置环境变量**
+     1. 点击上面的模板链接
+     2. 点击右上角的 "复制" 按钮复制到你的 Notion 工作区
+     3. 复制完成后，点击右上角 "分享" 按钮，点击发布 Tab，进行发布
+     4. 复制页面 ID（URL 中的 32 位字母与数字字符串）
+
+2. **点击部署按钮**
+
+   点击 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/nnav&env=NOTION_PAGE_ID&envDescription=Notion%20Page%20ID&envLink=https://github.com/yourusername/nnav%23environment-configuration) 按钮进行部署
+
+3. **配置环境变量**
 
    在 Vercel 部署页面中，需要配置以下环境变量：
 
    - `NOTION_PAGE_ID`: 你的 Notion 页面 ID
-
-3. **获取 Notion 页面 ID**
-
-   - 打开你的 Notion 页面或数据库页面
-   - 复制页面 URL
-   - 提取页面 ID 部分
 
 4. **完成部署**
 
@@ -61,7 +69,7 @@ pnpm install
 
 #### 环境配置
 
-> 📖 **详细配置说明**：查看 [ENV_SETUP.md](./ENV_SETUP.md) 获取完整的环境变量配置指南。
+> 📖 **详细配置说明**：
 
 1. 在项目根目录创建 `.env.local` 文件：
 
@@ -69,11 +77,7 @@ pnpm install
 NOTION_PAGE_ID=your_page_id_here
 ```
 
-2. 获取 Notion 页面 ID：
-
-   - 打开你的 Notion 页面或数据库页面
-   - 复制页面 URL
-   - 提取页面 ID 部分
+2. 获取 Notion 页面 ID，同上
 
 #### 启动开发服务器
 
@@ -87,88 +91,12 @@ pnpm dev
 
 打开 [http://localhost:3000](http://localhost:3000) 查看结果。
 
-## 🌐 部署指南
-
-> 📖 **详细部署说明**：查看 [DEPLOYMENT.md](./DEPLOYMENT.md) 获取完整的部署指南和故障排除信息。
-
-### Vercel 部署
-
-#### 自动部署（推荐）
-
-1. **Fork 项目**
-
-   在 GitHub 上 Fork 本项目到你的账户
-
-2. **修改部署链接**
-
-   将 README 中的部署链接中的 `yourusername` 替换为你的 GitHub 用户名
-
-3. **一键部署**
-
-   点击部署按钮，按照提示配置环境变量即可
-
-#### 手动部署
-
-1. **导入项目**
-
-   在 [Vercel Dashboard](https://vercel.com/dashboard) 中点击 "New Project"
-
-2. **连接 GitHub**
-
-   选择你的 GitHub 仓库或直接导入项目
-
-3. **配置环境变量**
-
-   在项目设置中添加以下环境变量：
-
-   ```
-   NOTION_PAGE_ID=your_page_id_here
-   ```
-
-4. **部署**
-
-   点击 "Deploy" 按钮完成部署
-
-### 其他平台部署
-
-#### Netlify
-
-1. 连接 GitHub 仓库
-2. 构建命令：`npm run build`
-3. 发布目录：`.next`
-4. 环境变量配置同 Vercel
-
-#### Railway
-
-1. 连接 GitHub 仓库
-2. 自动检测 Next.js 项目
-3. 配置环境变量
-4. 自动部署
-
 ### 环境变量说明
 
-| 变量名           | 必需 | 说明           |
-| ---------------- | ---- | -------------- |
-| `NOTION_PAGE_ID` | ✅   | Notion 页面 ID |
-
-### 域名配置
-
-部署完成后，你可以：
-
-1. **使用 Vercel 默认域名**
-
-   - 格式：`your-project.vercel.app`
-   - 自动 HTTPS 支持
-
-2. **配置自定义域名**
-
-   - 在 Vercel Dashboard 中添加自定义域名
-   - 支持 CNAME 和 A 记录配置
-   - 自动 SSL 证书
-
-3. **配置重定向**
-   - 支持 www 到非 www 重定向
-   - 支持 HTTP 到 HTTPS 重定向
+| 变量名           | 必需 | 说明                                                  |
+| ---------------- | ---- | ----------------------------------------------------- |
+| `NOTION_PAGE_ID` | ✅   | Notion 页面 ID                                        |
+| `NOTION_TOKEN`   | ❌   | Notion 私有 Token（可选，设置后可访问未公开的数据库） |
 
 ## 📊 Notion 页面/数据库设置
 
@@ -180,8 +108,34 @@ pnpm dev
 
 1. 点击上面的模板链接
 2. 点击右上角的 "Duplicate" 按钮复制到你的 Notion 工作区
-3. 复制页面 ID（URL 中的长字符串）
+3. 复制页面 ID（URL 中的 32 位字母与数字字符串）
 4. 在环境变量中设置 `NOTION_PAGE_ID`
+
+### 🖼️ 设置背景图
+
+**重要功能**：你可以为 Notion 数据库设置封面图片，它会自动同步为导航页的背景图！
+
+#### 如何设置封面
+
+1. **设置数据库封面**
+
+   - 打开你的 Notion 数据库页面
+   - 点击页面顶部的 "Add cover" 按钮
+   - 选择 "Upload" 上传本地图片，或选择 "Unsplash" 搜索在线图片
+   - 调整封面显示方式（居中、填充等）
+
+2. **支持的图片格式**
+
+   - JPG/JPEG
+   - PNG
+   - WebP
+   - GIF（静态）
+
+3. **背景图优先级**
+
+   - 🥇 **Notion 封面**：最高优先级，如果设置了封面则优先显示
+   - 🥈 **Bing 每日图片**：当没有 Notion 封面时显示
+   - 🥉 **本地图片**：当没有 Notion 封面和 Bing 图片时显示
 
 ### 数据库结构
 
@@ -210,95 +164,54 @@ status: "显示"
 category: "开发工具"
 ```
 
-### 页面/数据库设置步骤
-
-1. **创建新页面或数据库**
-
-   - 在 Notion 中点击 `+ New` 按钮
-   - 选择 `Table` 或 `Database`
-   - 命名为 "导航菜单"
-
-2. **添加属性列**
-
-   - 点击 `+` 按钮添加新列
-   - 按照上表配置每个属性列
-   - 确保属性类型正确
-
-3. **获取页面 ID**
-   - 复制页面或数据库页面的 URL
-   - 提取页面 ID 部分
-   - 更新环境变量中的 `NOTION_PAGE_ID`
-
 ## 🔧 核心功能
 
-### 1. 动态菜单管理
+### 动态菜单管理
 
-- 通过 Notion 页面实时管理菜单项
-- 支持添加、修改、删除菜单项
-- 无需重新部署应用
+- 从 Notion 数据库实时获取菜单项
+- 支持状态过滤（Status 字段）
+- 按分类自动分组（Category 字段）
+- 权限控制（Roles 字段）
 
-### 2. 权限控制
+### 智能搜索系统
 
-- 基于用户角色控制菜单项访问
-- 支持多角色权限配置
-- 灵活的权限管理
+- 实时搜索菜单项
+- 键盘导航支持（↑↓ 选择，Enter 确认，Esc 关闭）
+- 搜索建议和结果高亮
+- 支持标题和描述搜索
 
-### 3. 搜索功能
+### 权限控制系统
 
-- 支持菜单项标题和描述搜索
-- 实时搜索建议
-- 键盘导航支持（上下箭头、回车、ESC）
-- 点击外部自动关闭建议
-- 支持直接打开匹配的菜单项
+- 基于 Notion 数据库中的 Roles 字段
+- 动态角色管理，无需重启应用
+- 登录验证和会话管理
+- 支持多角色访问控制
 
-### 4. 分类分组
+### 收藏功能
 
-- 按分类自动分组显示菜单项
-- 支持自定义分类名称
-- 清晰的视觉层次
+- 本地存储收藏数据
+- 支持添加/移除收藏
+- 权限过滤显示
+- 清空收藏功能
 
-### 5. 登录验证
+### 智能图标系统
 
-- 使用页面中的 Roles 字段作为登录密码
-- 实时验证用户权限
-- 支持多角色登录
-- 安全的 API 验证机制
+- **多级备选方案**：
+  1. 🥇 **原始 Avatar**：优先显示 Notion 中设置的图标
+  2. 🥈 **Favicon 备选**：当原始图标为空或加载失败时，自动使用 [favicon.im](https://favicon.im/) 服务获取网站图标
+  3. 🥉 **文本图标**：当无法获取任何图标时，显示网站名称首字母
+- **自动域名解析**：智能提取网站域名生成 favicon URL
+- **错误处理**：优雅处理各种加载失败情况
+- **性能优化**：懒加载和异步解码
 
-### 6. URL 角色验证
+### 动态背景系统
 
-- 支持通过 URL 参数 `?role=xxx` 直接验证角色
-- 自动从 Notion 数据库中读取所有角色进行验证
-- 同时支持备用密码（qazz, guest）
-- 验证成功后自动解锁页面并设置用户角色
-- 支持实时角色更新，无需重启应用
-- **智能加载状态**：当 URL 包含 role 参数时，先显示"正在验证角色权限..."的加载状态，验证失败才显示锁定页面
+- Notion 页面封面优先
+- Bing 每日图片备选
+- 本地图片兜底
+- 自动适配不同屏幕尺寸
 
-**使用示例：**
-
-```
-https://your-domain.vercel.app/?role=qa
-https://your-domain.vercel.app/?role=qazz
-https://your-domain.vercel.app/?role=guest
-```
-
-**验证流程：**
-
-1. 检测 URL 中的 role 参数
-2. 显示"正在验证角色权限..."加载状态
-3. 优先使用 Notion 数据库中的 Roles 字段值进行验证
-4. 如果 Notion 角色验证失败，使用备用密码验证
-5. 验证成功后自动解锁页面并设置用户角色
-6. 验证失败则显示锁定页面
-7. 支持多角色配置（用逗号分隔）
-
-### 7. 收藏功能
-
-- 支持收藏常用菜单项
-- 收藏数据存储在浏览器 localStorage 中
-- 独立显示在"常用"分类下
-- 支持一键清空所有收藏
-- 权限控制，只显示用户有权限的收藏
-- 支持内网/外网链接切换
+**💡 快速检查**：运行 `npm run deploy-check` 来自动检查部署配置是否正确。
 
 ## 📁 项目结构
 
@@ -381,10 +294,26 @@ curl http://localhost:3000/api/env-check
    - 查看 Vercel 构建日志
 
 6. **Vercel 部署问题**
+
    - 确保环境变量在 Vercel Dashboard 中正确设置
    - 检查构建日志中的错误信息
    - 确认 Next.js 版本兼容性
    - 验证 API 路由配置
+
+7. **背景图不显示**
+
+   - 确认 Notion 数据库已设置封面图片
+   - 检查封面图片格式是否支持（JPG、PNG、WebP、GIF）
+   - 验证图片文件大小是否过大（建议小于 5MB）
+   - 确认数据库页面权限设置正确
+   - 查看浏览器控制台是否有图片加载错误
+   - 如果 Notion 封面不显示，系统会自动回退到 Bing 图片或本地图片
+
+8. **背景图显示异常**
+   - 检查图片分辨率是否合适（推荐 1920x1080 或更高）
+   - 确认图片没有损坏或格式错误
+   - 验证网络连接是否正常
+   - 清除浏览器缓存后重试
 
 ### 调试工具
 
@@ -392,7 +321,9 @@ curl http://localhost:3000/api/env-check
 - 访问 `/api/auth` 测试登录验证（POST 请求）
 - 访问 `/api/auth/roles` 查看所有可用角色
 - 访问 `/api/env-check` 检查环境变量配置
+- 访问 `/api/debug-menu` 查看菜单数据（包含封面信息）
 - 查看浏览器控制台获取详细错误信息
+- 使用浏览器开发者工具检查图片加载状态
 
 ### 部署检查清单
 
@@ -404,37 +335,7 @@ curl http://localhost:3000/api/env-check
 - [ ] GitHub 仓库已 Fork 或克隆
 - [ ] 项目依赖已安装
 - [ ] 本地测试通过
+- [ ] Notion 数据库封面已设置（可选，用于背景图）
+- [ ] 封面图片格式和大小符合要求
 
 **💡 快速检查**：运行 `npm run deploy-check` 来自动检查部署配置是否正确。
-
-### 性能优化建议
-
-1. **Vercel 优化**
-
-   - 启用 Vercel Analytics
-   - 配置 CDN 缓存策略
-   - 使用 Vercel Edge Functions
-
-2. **Notion API 优化**
-
-   - 合理设置缓存时间
-   - 避免频繁的 API 调用
-   - 使用适当的错误重试机制
-
-3. **前端优化**
-   - 启用 Next.js 图片优化
-   - 配置适当的缓存策略
-   - 优化字体加载
-
-## 🔧 高级配置
-
-### 自定义角色管理
-
-1. 在 Notion 页面中为菜单项设置不同的 Roles 值
-2. 这些值将自动成为可用的登录密码
-3. 系统会动态读取所有角色值
-4. 支持实时添加新角色而无需重启应用
-
-### 权限控制策略
-
-- **自定义角色**: 可以设置特定的访问权限
