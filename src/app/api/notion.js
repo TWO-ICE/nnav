@@ -1,7 +1,7 @@
 import { NotionAPI } from "notion-client";
+import { getNotionAPIConfig } from "@/config/notion";
 
-const notionToken = process.env.NOTION_TOKEN;
-const api = new NotionAPI(notionToken ? { authToken: notionToken } : undefined);
+const api = new NotionAPI(getNotionAPIConfig());
 
 export default async function handler(req, res) {
   try {
@@ -52,9 +52,11 @@ function parseDatabaseToMenuItems(database) {
         page.properties?.Link?.[0]?.[0] ||
         "";
 
+      // 优先级：Icon属性 > Avatar属性 > 页面图标 > 空
       const avatar =
-        page.properties?.Avatar?.[0]?.[0] ||
         page.properties?.Icon?.[0]?.[0] ||
+        page.properties?.Avatar?.[0]?.[0] ||
+        page.format?.page_icon ||
         "";
 
       const category =
@@ -70,6 +72,9 @@ function parseDatabaseToMenuItems(database) {
         page.properties?.lanHref?.[0]?.[0] ||
         "";
 
+      // 获取最后编辑时间
+      const lastEditedTime = page.last_edited_time || 0;
+
       if (title && href) {
         menuItems.push({
           id: blockId,
@@ -80,6 +85,7 @@ function parseDatabaseToMenuItems(database) {
           avatar: avatar.trim() || undefined,
           roles: roles.map((role) => role.trim()),
           category: category.trim(),
+          lastEditedTime: lastEditedTime, // 添加最后编辑时间
         });
       }
     }

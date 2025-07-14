@@ -7,10 +7,13 @@ import {
   NotionPropertyMapping,
   DatabaseMetadata,
 } from "@/types";
-import { NOTION_CONFIG, NOTION_PROPERTY_MAPPING } from "@/config/notion";
+import {
+  NOTION_CONFIG,
+  NOTION_PROPERTY_MAPPING,
+  getNotionAPIConfig,
+} from "@/config/notion";
 
-const notionToken = process.env.NOTION_TOKEN;
-const api = new NotionAPI(notionToken ? { authToken: notionToken } : undefined);
+const api = new NotionAPI(getNotionAPIConfig());
 
 export async function GET(request: NextRequest) {
   try {
@@ -74,9 +77,16 @@ function parseDatabaseToMenuItems(database: NotionDatabase): NavMenuItem[] {
       const href =
         getPropertyValueByMapping(page.properties, propertyMapping, "url") ||
         "";
-      const avatar =
+      // 优先级：Icon属性 > Avatar属性 > 页面图标 > 空
+      let avatar =
         getPropertyValueByMapping(page.properties, propertyMapping, "avatar") ||
         "";
+
+      // 如果没有从属性字段获取到avatar，尝试从页面图标获取
+      if (!avatar && page.format?.page_icon) {
+        avatar = page.format.page_icon;
+      }
+
       const roles = getPropertyValueByMapping(
         page.properties,
         propertyMapping,
@@ -97,6 +107,9 @@ function parseDatabaseToMenuItems(database: NotionDatabase): NavMenuItem[] {
           "category"
         ) || "其他";
 
+      // 获取最后编辑时间
+      const lastEditedTime = page.last_edited_time || 0;
+
       // 检查状态，只显示状态为"显示"或"active"的菜单项
       const isActive =
         status === "显示" || status === "active" || status === "Active";
@@ -111,6 +124,7 @@ function parseDatabaseToMenuItems(database: NotionDatabase): NavMenuItem[] {
           avatar: avatar.trim() || undefined,
           roles: roles.map((role: string) => role.trim()),
           category: category.trim(), // 添加分类信息
+          lastEditedTime: lastEditedTime, // 添加最后编辑时间
         });
       } else {
         if (!isActive) {
@@ -367,11 +381,6 @@ function extractCategoryOrder(database: NotionDatabase): string[] {
       property.type === "select" &&
       Array.isArray(property.options)
     ) {
-      // 输出 property.options 结构
-      console.log(
-        "Notion category property.options:",
-        JSON.stringify(property.options, null, 2)
-      );
       // 兼容 name、value、text 字段
       return property.options.map(
         (opt) => opt.name || opt.value || opt.text || ""
