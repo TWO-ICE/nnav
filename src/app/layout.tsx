@@ -21,6 +21,12 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <head>
+        <script 
+          id="counterscale-script" 
+          data-site-id="ebeb.fun" 
+          src="https://counterscale.ebeb.fun/tracker.js" 
+          defer 
+        />
         {/* iconfont 在线链接 */}
         <link
           rel="stylesheet"
