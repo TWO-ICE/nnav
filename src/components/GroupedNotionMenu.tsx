@@ -131,11 +131,11 @@ export const GroupedNotionMenu = memo(
                     }`}
                   />
                   <a
-                    href={isLan ? item.lanHref || item.href : item.href}
+                    // href={isLan ? item.lanHref || item.href : item.href}
                     target="_blank"
                     rel="noreferrer"
                     style={{ backgroundColor: isLiquidGlass ? "transparent": "rgba(42, 42, 42, 0.42)" }}
-                    className="flex justify-items-start items-center rounded-2xl space-x-6 p-5 text-white"
+                    className="flex justify-items-start items-center rounded-2xl space-x-6 p-5 text-white cursor-pointer"
                     onClick={(e: React.MouseEvent<HTMLAnchorElement>) => window.handleLinkClick && window.handleLinkClick(e, isLan ? item.lanHref || item.href : item.href, item.target)}
                   >
                     <Avatar
