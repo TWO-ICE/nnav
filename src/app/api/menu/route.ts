@@ -12,6 +12,7 @@ import {
   NOTION_PROPERTY_MAPPING,
   getNotionAPIConfig,
 } from "@/config/notion";
+import { adapterNotionBlockMap } from "@/utils/notion-adapter";
 
 const api = new NotionAPI(getNotionAPIConfig());
 
@@ -21,7 +22,11 @@ export async function GET(request: NextRequest) {
     const pageId = searchParams.get("pageId") || NOTION_CONFIG.DEFAULT_PAGE_ID;
 
     // fetch database content
-    const database = (await api.getPage(pageId)) as NotionDatabase;
+    let database = (await api.getPage(pageId)) as NotionDatabase;
+
+    // 清理 Notion 数据结构，适配新版 API 返回格式
+    // 强制解包 block: { spaceId: { id: { value: {} } } } 这种结构
+    database = adapterNotionBlockMap(database);
 
     // 解析数据库内容，提取菜单项
     const menuItems = parseDatabaseToMenuItems(database);
@@ -227,6 +232,8 @@ function extractDatabaseMetadata(database: NotionDatabase): DatabaseMetadata {
     return metadata;
   }
 
+  console.log("Database block", JSON.stringify(database));
+
   // 查找数据库页面本身
   for (const blockId of Object.keys(database.block)) {
     const block = database.block[blockId];
@@ -356,7 +363,7 @@ function extractDatabaseMetadata(database: NotionDatabase): DatabaseMetadata {
   }
 
   // 如果还没有找到封面，尝试从 collection.value.cover 读取
-  if (!metadata.cover && database.collection) {
+  if (database.collection) {
     const collectionId = Object.keys(database.collection)[0];
     const collection = database.collection[collectionId];
     if (collection?.value?.cover) {
